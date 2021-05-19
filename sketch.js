@@ -7,6 +7,8 @@ var engine, world;
 var bg
 var score = 100;
 var gameState = "play";
+var gun1;
+var player;
 
 function preload() {
     bgImage = loadImage("forest-stonesBG.jpg")
@@ -15,7 +17,7 @@ function preload() {
     zombie1Image = loadImage("photos/zombie.png")
     zombie2Image = loadImage("photos/zombie2.png")
     zombie3Image = loadImage("photos/zombie3.png")
-
+    player1Image = loadImage("photos/player.png")
 
 
 }
@@ -38,6 +40,9 @@ function setup() {
     player.addImage(playerImage)
     player.scale = 0.5
 
+    gun = new Gun(100, 630, 20, 20)
+    
+
     monsterGroup = new Group();
 }
 
@@ -45,28 +50,46 @@ function draw() {
     background("red")
     Engine.update(engine);
 
-    if(gameState === "play"){
+    if (gameState === "play") {
+        if (bg.x < 100) {
+            bg.x = bg.width / 2
+        }
+
+
+        if (keyDown("space") && player.y > 603) {
+            player.velocityY = -40
+        }
+        player.velocityY = player.velocityY + 5
+
+        if(keyWentDown("LEFT_ARROW")){
+            player.addImage(player1Image)
+        }
+        if(keyWentUp("LEFT_ARROW")){
+            player.addImage(playerImage)
+        }
+
+
+        if (player.isTouching(monsterGroup)) {
+            monsterGroup.destroyEach()
+            score = score - 10
+        }
+
+        spawnMonsters();
+
+        if (score <= 0) {
+            gameState = "end"
+        }
 
     }
-    else if(gameState === "end"){
+    else if (gameState === "end") {
+        text("GAME OVER", 500, 500)
 
     }
-    if (bg.x < 100) {
-        bg.x = bg.width / 2
-    }
 
-    if (keyDown("space") && player.y > 603) {
-        player.velocityY = -40
-    }
-    player.velocityY = player.velocityY + 5
     player.collide(ground)
     console.log(player.y)
 
-    if (player.isTouching(monsterGroup)) {
-        score = score - 10
-    }
-
-    spawnMonsters();
+    gun.display()
 
     drawSprites();
     textSize(30)
